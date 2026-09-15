@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Work Hours Calculator - Know When You Can Leave</title>
+  <meta name="description" content="Calculate your completed working hours, break time, remaining hours, and exact leaving time from punch timestamps.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="app-header">
+      <h1>Work Hours Calculator</h1>
+      <p>Paste your punch details and instantly know when you can leave.</p>
+    </header>
+
+    <main>
+      <!-- Punch Input & Status Card -->
+      <section class="card input-card">
+        <div class="input-grid">
+          <!-- Left Column: Inputs & Actions -->
+          <div class="input-col">
+            <div class="form-group">
+              <label for="punchInput">
+                Punch Details
+                <span class="label-hint">(IN / OUT timestamps)</span>
+              </label>
+              <textarea 
+                id="punchInput" 
+                placeholder="Punch Hours:**4.25**Punch Times:9:13, 11:12, 12:01, 12:58, 13:28"
+                aria-describedby="validationMessage"
+                rows="4"
+              ></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="targetInput">Target Work Hours</label>
+                <div class="target-input-wrap">
+                  <input 
+                    type="number" 
+                    id="targetInput" 
+                    value="8" 
+                    step="0.25" 
+                    min="0.5" 
+                    max="24"
+                    aria-label="Target Work Hours"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="button" id="calcBtn" class="btn-primary">
+                Calculate
+              </button>
+              <button type="button" id="clearBtn" class="btn-secondary">
+                Clear
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Column: Current Time & Target Status -->
+          <div class="status-panel">
+            <div class="time-display-card">
+              <div class="time-label">Current Time</div>
+              <div id="currentTimeVal" class="time-value">--:--</div>
+              <div class="live-badge">
+                <span id="liveDot" class="live-dot"></span>
+                <span id="liveStatusText">Live Browser Time</span>
+              </div>
+            </div>
+
+            <div class="target-badge-wrap">
+              <div class="target-badge">
+                Target: <span id="targetDisplay" class="target-highlight">8h 00m</span>
+              </div>
+            </div>
+
+            <div class="simulate-toggle-wrap">
+              <button type="button" id="toggleSimulateBtn" class="simulate-btn">
+                Simulate / Test Time
+              </button>
+              <div id="simulateBox" class="simulate-box">
+                <label for="customTimeInput">Set Test Time:</label>
+                <input type="time" id="customTimeInput" step="60">
+                <button type="button" id="resetTimeBtn" class="simulate-btn" style="text-align: left; margin-top: 4px;">
+                  Reset to Live Time
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Validation Message -->
+        <div id="validationMessage" class="alert alert-danger" style="display: none;" role="alert" aria-live="polite"></div>
+      </section>
+
+      <!-- Results Container -->
+      <section id="resultsSection" style="display: none; margin-top: 1.5rem;" aria-live="polite">
+        <!-- 3 Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-title">Worked So Far</div>
+            <div id="workedVal" class="metric-value">--</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Break Time</div>
+            <div id="breakVal" class="metric-value">--</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Remaining Work</div>
+            <div id="remainingVal" class="metric-value">--</div>
+          </div>
+        </div>
+
+        <!-- Primary Leaving Time Card -->
+        <div id="resultCard" class="card result-card" style="margin-top: 1.5rem;">
+          <div id="resultSubhead" class="result-subhead">You can leave at</div>
+          <div id="leavingTimeVal" class="result-time">--:--</div>
+          <div id="resultNote" class="result-note"></div>
+          
+          <div class="result-actions">
+            <button type="button" id="copyBtn" class="btn-secondary copy-btn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: -2px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              Copy Result
+            </button>
+          </div>
+        </div>
+
+        <!-- Timeline Intervals Breakdown -->
+        <div class="card timeline-card" style="margin-top: 1.5rem;">
+          <div class="timeline-title">Punch Breakdown & Intervals</div>
+          <div id="intervalsList" class="interval-list">
+            <!-- Dynamic interval items will render here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Empty State Placeholder -->
+      <div id="emptyState" class="alert alert-info" style="margin-top: 1.5rem; text-align: center; justify-content: center;">
+        Paste your punch details to calculate your leaving time.
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast" role="status" aria-live="polite">Copied to clipboard!</div>
+
+  <!-- Scripts -->
+  <script src="js/parser.js"></script>
+  <script src="js/calculator.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
