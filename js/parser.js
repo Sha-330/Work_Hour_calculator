@@ -30,9 +30,9 @@
     // If the string contains "Punch Times:", extract the part after it,
     // but fall back to the whole string if not found.
     let textToScan = trimmed;
-    const punchTimesIndex = trimmed.search(/punch\s*times\s*:/i);
-    if (punchTimesIndex !== -1) {
-      textToScan = trimmed.slice(punchTimesIndex + 'punch times:'.length);
+    const punchTimesMatch = trimmed.match(/punch\s*times\s*:/i);
+    if (punchTimesMatch) {
+      textToScan = trimmed.slice(punchTimesMatch.index + punchTimesMatch[0].length);
     }
 
     // Match time tokens like "9:13", "09:13", "16:18"
@@ -49,7 +49,7 @@
     }
 
     // If no matches found in the slice, try scanning the entire string
-    if (matches.length === 0 && punchTimesIndex !== -1) {
+    if (matches.length === 0 && punchTimesMatch) {
       while ((match = timeRegex.exec(trimmed)) !== null) {
         matches.push({
           raw: match[0],
@@ -82,8 +82,8 @@
 
       const totalMinutes = item.hours * 60 + item.minutes;
 
-      // Chronological validation: strictly increasing
-      if (totalMinutes <= lastTotalMinutes) {
+      // Chronological validation: non-decreasing (allows consecutive punches within the same minute)
+      if (totalMinutes < lastTotalMinutes) {
         return {
           valid: false,
           error: 'Punch times must be in chronological order.'
