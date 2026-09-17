@@ -68,6 +68,17 @@ assert(parseInvalidTime.valid === false && parseInvalidTime.error === 'Could not
 const parseGibberish = parsePunchTimes('Punch hours: 4.25 without times');
 assert(parseGibberish.valid === false && parseGibberish.error === 'Could not find valid punch times.', 'Test D4 - Gibberish rejected');
 
+// Test D5 & D6: Same-minute duplicate punch times (e.g. punch OUT and IN at 12:52 and 13:36)
+const inputSameMinute = 'Punch Hours:\n8.10\nPunch Times:\n9:18, 9:57, 10:01, 11:04, 11:25, 12:52, 12:52, 13:12, 13:26, 13:36, 13:36, 13:39, 14:10, 14:38, 15:15, 15:29, 16:50, 17:24';
+const parseSameMinute = parsePunchTimes(inputSameMinute);
+assert(parseSameMinute.valid === true, 'Test D5 - Same-minute punch times accepted');
+assert(parseSameMinute.punches.length === 18, 'Test D5 - Extracted all 18 punches');
+
+const calcSameMinute = calculateSchedule(parseSameMinute.punches, 8, 17 * 60 + 24);
+assert(calcSameMinute.workedFormatted === '4h 58m', `Test D6 - Worked 4h 58m, got ${calcSameMinute.workedFormatted}`);
+assert(calcSameMinute.breakFormatted === '3h 8m', `Test D6 - Break 3h 8m, got ${calcSameMinute.breakFormatted}`);
+assert(calcSameMinute.isPunchedOut === true, 'Test D6 - Last punch is OUT');
+
 // Test E: Single active punch
 const inputE = '09:00';
 const parseE = parsePunchTimes(inputE);
