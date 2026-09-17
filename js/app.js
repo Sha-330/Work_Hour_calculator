@@ -116,51 +116,41 @@
   function renderIntervals(schedule, parsedPunches) {
     intervalsList.innerHTML = '';
 
-    const allEvents = [];
+    const maxLen = Math.max(schedule.workIntervals.length, schedule.breakIntervals.length);
 
-    // Combine work intervals
-    schedule.workIntervals.forEach(function (w) {
-      if (w.isActive) {
-        allEvents.push({
-          order: w.in.totalMinutes,
-          html: '<div class="interval-item work active">' +
+    for (let i = 0; i < maxLen; i++) {
+      if (i < schedule.workIntervals.length) {
+        const w = schedule.workIntervals[i];
+        if (w.isActive) {
+          intervalsList.insertAdjacentHTML('beforeend',
+            '<div class="interval-item work active">' +
             '<span class="interval-type" style="color: var(--primary);">Active Work</span>' +
             '<span class="interval-times">' + w.in.timeStr + ' → ' + schedule.currentTimeFormatted + ' (Now)</span>' +
             '<span class="interval-duration">' + WorkCalculator.formatDuration(w.duration) + '</span>' +
             '</div>'
-        });
-      } else {
-        allEvents.push({
-          order: w.in.totalMinutes,
-          html: '<div class="interval-item work">' +
+          );
+        } else {
+          intervalsList.insertAdjacentHTML('beforeend',
+            '<div class="interval-item work">' +
             '<span class="interval-type" style="color: var(--primary);">Work</span>' +
             '<span class="interval-times">' + w.in.timeStr + ' → ' + w.out.timeStr + '</span>' +
             '<span class="interval-duration">' + WorkCalculator.formatDuration(w.duration) + '</span>' +
             '</div>'
-        });
+          );
+        }
       }
-    });
 
-    // Combine break intervals
-    schedule.breakIntervals.forEach(function (b) {
-      allEvents.push({
-        order: b.out.totalMinutes,
-        html: '<div class="interval-item break">' +
+      if (i < schedule.breakIntervals.length) {
+        const b = schedule.breakIntervals[i];
+        intervalsList.insertAdjacentHTML('beforeend',
+          '<div class="interval-item break">' +
           '<span class="interval-type" style="color: #b45309;">Break</span>' +
           '<span class="interval-times">' + b.out.timeStr + ' → ' + b.in.timeStr + '</span>' +
           '<span class="interval-duration">' + WorkCalculator.formatDuration(b.duration) + '</span>' +
           '</div>'
-      });
-    });
-
-    // Sort intervals chronologically
-    allEvents.sort(function (a, b) {
-      return a.order - b.order;
-    });
-
-    allEvents.forEach(function (evt) {
-      intervalsList.insertAdjacentHTML('beforeend', evt.html);
-    });
+        );
+      }
+    }
   }
 
   /**
